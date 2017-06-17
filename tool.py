@@ -3,7 +3,30 @@ import os
 sg_types = ['Character', 'Vehicle', 'Prop', 'Environment', 'Matte Painting']
 sg_category = ['Production', 'Test', 'Development']
 validCategory = False
-user_type = os.path.split(os.getcwd())[1]
+user_type = os.path.split(os.getcwd())[1]  #Nombre de la carpeta donde se corre el programa
+index_name = None
+user_name = None
+dir_names = None
+
+def assignName(number):
+	"""
+	Entrada: String que representa la posicion 
+	del nombre deseado en dir_names
+	Funcion: Trata de convertir la variable
+	number a un entero. Si no es posible o
+	el numero esta fuera de rango retorna
+	False.
+	"""
+	global index_name, user_name, dir_names
+	try:
+		index_name = int(number)
+		if index_name > len(dir_names):
+			return False
+		user_name = dir_names[index_name-1]
+		return True
+	except:
+		return False
+
 if user_type in sg_types:
 	files = os.listdir(os.getcwd())
 	print "Tipo %s\n" %user_type
@@ -19,8 +42,9 @@ if user_type in sg_types:
 			print "Seleccione un nombre:"
 			for index, name in enumerate(dir_names):
 				print '%s - %s' %(index+1, name)
-			index_name = int(raw_input("Opcion seleccionada:"))
-			user_name = dir_names[index_name-1]
+			while not assignName(raw_input("Opcion seleccionada:")):
+				print "Escriba correctamente la opcion seleccionada"
+			
 			print "Usted selecciono: %s" %user_name
 		else: 
 			"Erroneous data"
