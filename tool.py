@@ -6,6 +6,7 @@ img_extension = ['.jpg', '.png', '.jpeg', '.exr']
 validCategory = False
 user_type = os.path.split(os.getcwd())[1]  #Nombre de la carpeta donde se corre el programa
 index_name = None
+index_file = None
 user_name = None
 dir_names = None
 clear = lambda: os.system('cls')
@@ -56,8 +57,8 @@ def showOptions():
 		print '%s - %s' %(index+1, name)
 	while not assignName(raw_input("Opcion seleccionada:")):
 		print "Escriba correctamente la opcion seleccionada"
-def printFiles(path):
-	global dir_files,img_extension
+def selectFile(path):
+	global dir_files,img_extension, index_file
 	fileItems = []
 	dir_files = os.listdir(path)
 	print "Carpetas y archivos encontrados:"
@@ -68,7 +69,24 @@ def printFiles(path):
 			filename, file_extension = os.path.splitext(item)
 			if file_extension in img_extension:
 				print "%s  %s" %(index+1, item)
+			else:
+				fileItems.append(item)
+	for item in fileItems:
+		dir_files.remove(item)
 	print "\n"
+	try:
+		index_file = int(raw_input("Opcion seleccionada:"))-1
+		if index_file>len(dir_files):
+			clear()
+			return 0
+		else:
+			if not os.path.isdir(path+'/'+dir_files[index_file]):
+				return 1
+			else:
+				return 2
+	except:
+		clear()
+		return 0
 
 if user_type in sg_types:
 	files = os.listdir(os.getcwd())
@@ -88,13 +106,21 @@ if user_type in sg_types:
 			clear()
 			dir_files = os.listdir(os.getcwd()+'/'+user_category+'/'+user_name)
 			if len(dir_files)>0:
-				printFiles(os.getcwd()+'/'+user_category+'/'+user_name)
-				index_file = int(raw_input("Opcion seleccionada:"))
-				user_file = dir_files[index_name-1]
-				print "Usted selecciono: %s" %user_file
+				#Checar que la entrada sea valida
+				valid = selectFile(os.getcwd()+'/'+user_category+'/'+user_name)
+				while valid == 0:
+					print "Opcion invalida, vuelva a intentarlo"
+					clear()
+					selectFile(os.getcwd()+'/'+user_category+'/'+user_name)
+				
+				user_file = dir_files[index_file]
+				if valid == 1:
+					print "Imagen seleccionada: %s" %user_file
+				elif valid == 2:
+					print "Carpeta seleccionada: %s" %user_file
 		else: 
 			print "No se encontro ninguna carpeta"
 else:
 	print 'Revise que este en la carpeta correcta y el nombre de la misma sea el adecuado'
-raw_input("Try again")
+raw_input("Thanks for using Shotgun!")
 	
