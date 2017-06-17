@@ -168,6 +168,28 @@ if user_type in sg_types:
 						print "Asset creado"
 					elif valid == 2:
 						print "Carpeta seleccionada: %s" %user_file
+						imgs_dir = os.getcwd()+'/'+user_category+'/'+user_name+'/'+user_file
+						os.chdir(imgs_dir)
+						#ffmpegCall = "ffmpeg -i *.jpg -c:v libx264 -crf 0 output.mp4" 
+						#os.system(ffmpegCall)
+						for index, filename in enumerate(os.listdir(imgs_dir)):
+						    if (filename.endswith(".jpg")): #or .avi, .mpeg, whatever.
+						        os.system("ffmpeg -i {0} -f image2 -vf fps=fps=1 secuencia%d.mp4".format(filename) )
+						    else:
+						        continue
+						try:
+							file_path = imgs_dir+'/secuencia1.mp4'
+							data = {
+								'code': user_file,
+								'entity': {'id': asset_id, 'type': 'Asset'},
+								'description': 'Asset created by CarpetAssetsTool',
+								'user': {'id':93, 'type': 'HumanUser'},
+								'project': {'id':113, 'type':'Project'}}
+							result = sg.create("Version", data)
+							sg.upload("Version", result["id"], file_path, field_name="sg_uploaded_movie", display_name="Media")
+							print "Asset creado"
+						except Exception as e:
+							print e
 		else: 
 			print "No se encontro ninguna carpeta"
 else:
