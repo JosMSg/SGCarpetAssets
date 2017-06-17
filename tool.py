@@ -15,6 +15,7 @@ index_file = None
 user_name = None
 dir_names = None
 assets_names = []
+asset_id = None
 validAsset = False
 clear = lambda: os.system('cls')
 
@@ -118,10 +119,11 @@ if user_type in sg_types:
 			]
 			fields = ['id', 'code']
 			assets= sg.find("Asset",filters,fields)
-			print 'Assets encontrados: '+str(len(assets))
 			for asset in assets:
 				assets_names.append(asset['code'])
 			if user_name in assets_names:
+				asset_index = assets_names.index(user_name)
+				asset_id = assets[asset_index]['id']
 				print "Los archivos se subiran a %s" %user_name
 				validAsset=True
 			else:
@@ -133,8 +135,9 @@ if user_type in sg_types:
 						"sg_category": user_category,
 						"code": user_name
 					}
-					sg.create('Asset', data)
-					print "Asset creado"
+					asset_id = sg.create('Asset', data)
+					asset_id = asset_id['id']
+					print "Asset creado: %s" %asset_id
 					validAsset=True
 				else:
 					print "Cambie el nombre de la carpeta y vuelva a correr el programa"
@@ -151,7 +154,18 @@ if user_type in sg_types:
 					
 					user_file = dir_files[index_file]
 					if valid == 1:
+						file_path = os.getcwd()+'/'+user_category+'/'+user_name+'/'+user_file
 						print "Imagen seleccionada: %s" %user_file
+						data = {
+							'code': user_file,
+							'entity': {'id': asset_id, 'type': 'Asset'},
+							'description': 'Asset created by CarpetAssetsTool',
+							'user': {'id':93, 'type': 'HumanUser'},
+							'sg_status_list': 'rev',
+							'project': {'id':113, 'type':'Project'}}
+						result = sg.create("Version", data)
+						sg.upload("Version", result["id"], file_path, field_name="sg_uploaded_movie", display_name="Media")
+						print "Asset creado"
 					elif valid == 2:
 						print "Carpeta seleccionada: %s" %user_file
 		else: 
