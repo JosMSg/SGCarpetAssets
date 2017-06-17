@@ -2,14 +2,21 @@ import os
 
 sg_types = ['Character', 'Vehicle', 'Prop', 'Environment', 'Matte Painting']
 sg_category = ['Production', 'Test', 'Development']
+img_extension = ['.jpg', '.png', '.jpeg', '.exr']
 validCategory = False
 user_type = os.path.split(os.getcwd())[1]  #Nombre de la carpeta donde se corre el programa
 index_name = None
 user_name = None
 dir_names = None
+clear = lambda: os.system('cls')
+
 
 
 def getDirs(path):
+	"""
+	Obtiene solo las carpetas de cierta direccion
+	y las guarda en la variable dir_names
+	"""
 	global dir_names
 	fileItems = []
 	dir_names = os.listdir(path)
@@ -39,12 +46,29 @@ def assignName(number):
 	except:
 		return False
 def showOptions():
+	"""
+	Presenta las opciones en dir_names y le pide al
+	usuario que elija una con un valor valido
+	"""
 	global dir_names
 	print "Seleccione un nombre:"
 	for index, name in enumerate(dir_names):
 		print '%s - %s' %(index+1, name)
 	while not assignName(raw_input("Opcion seleccionada:")):
 		print "Escriba correctamente la opcion seleccionada"
+def printFiles(path):
+	global dir_files,img_extension
+	fileItems = []
+	dir_files = os.listdir(path)
+	print "Carpetas y archivos encontrados:"
+	for index, item in enumerate(dir_files):
+		if os.path.isdir(path+'/'+item):
+			print "%s >%s" %(index+1, item)
+		else:
+			filename, file_extension = os.path.splitext(item)
+			if file_extension in img_extension:
+				print "%s  %s" %(index+1, item)
+	print "\n"
 
 if user_type in sg_types:
 	files = os.listdir(os.getcwd())
@@ -61,17 +85,15 @@ if user_type in sg_types:
 		if len(dir_names)>0:
 			showOptions()
 			print "Usted selecciono: %s" %user_name
+			clear()
+			dir_files = os.listdir(os.getcwd()+'/'+user_category+'/'+user_name)
+			if len(dir_files)>0:
+				printFiles(os.getcwd()+'/'+user_category+'/'+user_name)
+				index_file = int(raw_input("Opcion seleccionada:"))
+				user_file = dir_files[index_name-1]
+				print "Usted selecciono: %s" %user_file
 		else: 
 			print "No se encontro ninguna carpeta"
-		raw_input("asdf")
-		dir_files = os.listdir(os.getcwd()+'/'+user_category+'/'+user_name)
-		if len(dir_files)>0:
-			print "Seleccione un nombre:"
-			for index, name in enumerate(dir_files):
-				print '%s - %s' %(index+1, name)
-			index_file = int(raw_input("Opcion seleccionada:"))
-			user_file = dir_files[index_name-1]
-			print "Usted selecciono: %s" %user_file
 else:
 	print 'Revise que este en la carpeta correcta y el nombre de la misma sea el adecuado'
 raw_input("Try again")
