@@ -1,4 +1,9 @@
 import os 
+from shotgun_api3 import Shotgun
+
+sg = Shotgun("https://upgdl.shotgunstudio.com",
+                          login="jos_sg",
+                          password="Shho3420")
 
 sg_types = ['Character', 'Vehicle', 'Prop', 'Environment', 'Matte Painting']
 sg_category = ['Production', 'Test', 'Development']
@@ -9,6 +14,8 @@ index_name = None
 index_file = None
 user_name = None
 dir_names = None
+assets_names = []
+validAsset = False
 clear = lambda: os.system('cls')
 
 
@@ -104,23 +111,52 @@ if user_type in sg_types:
 			showOptions()
 			print "Usted selecciono: %s" %user_name
 			clear()
-			dir_files = os.listdir(os.getcwd()+'/'+user_category+'/'+user_name)
-			if len(dir_files)>0:
-				#Checar que la entrada sea valida
-				valid = selectFile(os.getcwd()+'/'+user_category+'/'+user_name)
-				while valid == 0:
-					print "Opcion invalida, vuelva a intentarlo"
-					clear()
-					selectFile(os.getcwd()+'/'+user_category+'/'+user_name)
-				
-				user_file = dir_files[index_file]
-				if valid == 1:
-					print "Imagen seleccionada: %s" %user_file
-				elif valid == 2:
-					print "Carpeta seleccionada: %s" %user_file
+			#Encontrar el asset shotgun
+			filters = [
+				['sg_asset_type', 'is', user_type],
+				['sg_category', 'is', user_category]
+			]
+			fields = ['id', 'code']
+			assets= sg.find("Asset",filters,fields)
+			print 'Assets encontrados: '+str(len(assets))
+			for asset in assets:
+				assets_names.append(asset['code'])
+			if user_name in assets_names:
+				print "Los archivos se subiran a %s" %user_name
+				validAsset=True
+			else:
+				createSg = raw_input("El asset no existe, desea crearlo? (s/n)\n")
+				if createSg.lower() == 's':
+					data = {
+						"project": {"type": "Project", "id": 113},
+						"sg_asset_type": user_type,
+						"sg_category": user_category,
+						"code": user_name
+					}
+					sg.create('Asset', data)
+					print "Asset creado"
+					validAsset=True
+				else:
+					print "Cambie el nombre de la carpeta y vuelva a correr el programa"
+			#Subir archivos
+			if validAsset:
+				dir_files = os.listdir(os.getcwd()+'/'+user_category+'/'+user_name)
+				if len(dir_files)>0:
+					#Checar que la entrada sea valida
+					valid = selectFile(os.getcwd()+'/'+user_category+'/'+user_name)
+					while valid == 0:
+						print "Opcion invalida, vuelva a intentarlo"
+						clear()
+						selectFile(os.getcwd()+'/'+user_category+'/'+user_name)
+					
+					user_file = dir_files[index_file]
+					if valid == 1:
+						print "Imagen seleccionada: %s" %user_file
+					elif valid == 2:
+						print "Carpeta seleccionada: %s" %user_file
 		else: 
 			print "No se encontro ninguna carpeta"
 else:
 	print 'Revise que este en la carpeta correcta y el nombre de la misma sea el adecuado'
-raw_input("Thanks for using Shotgun!")
+raw_input("Gracias por utilizar Shotgun!")
 	
