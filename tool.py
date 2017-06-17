@@ -8,6 +8,18 @@ index_name = None
 user_name = None
 dir_names = None
 
+
+def getDirs(path):
+	global dir_names
+	fileItems = []
+	dir_names = os.listdir(path)
+	for item in dir_names:
+		if not os.path.isdir(path+'/'+item):
+			fileItems.append(item)
+	for item in fileItems:
+		dir_names.remove(item)
+
+
 def assignName(number):
 	"""
 	Entrada: String que representa la posicion 
@@ -26,6 +38,13 @@ def assignName(number):
 		return True
 	except:
 		return False
+def showOptions():
+	global dir_names
+	print "Seleccione un nombre:"
+	for index, name in enumerate(dir_names):
+		print '%s - %s' %(index+1, name)
+	while not assignName(raw_input("Opcion seleccionada:")):
+		print "Escriba correctamente la opcion seleccionada"
 
 if user_type in sg_types:
 	files = os.listdir(os.getcwd())
@@ -37,17 +56,14 @@ if user_type in sg_types:
 			break
 	if validCategory:
 		print "Categoria %s\n" %user_category
-		dir_names = os.listdir(os.getcwd()+'/'+user_category)
+		#dir_names = os.listdir(os.getcwd()+'/'+user_category)
+		getDirs(os.getcwd()+'/'+user_category)
 		if len(dir_names)>0:
-			print "Seleccione un nombre:"
-			for index, name in enumerate(dir_names):
-				print '%s - %s' %(index+1, name)
-			while not assignName(raw_input("Opcion seleccionada:")):
-				print "Escriba correctamente la opcion seleccionada"
-			
+			showOptions()
 			print "Usted selecciono: %s" %user_name
 		else: 
-			"Erroneous data"
+			print "No se encontro ninguna carpeta"
+		raw_input("asdf")
 		dir_files = os.listdir(os.getcwd()+'/'+user_category+'/'+user_name)
 		if len(dir_files)>0:
 			print "Seleccione un nombre:"
