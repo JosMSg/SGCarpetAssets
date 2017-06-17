@@ -9,14 +9,16 @@ sg_types = ['Character', 'Vehicle', 'Prop', 'Environment', 'Matte Painting']
 sg_category = ['Production', 'Test', 'Development']
 img_extension = ['.jpg', '.png', '.jpeg', '.exr']
 validCategory = False
-user_type = os.path.split(os.getcwd())[1]  #Nombre de la carpeta donde se corre el programa
 index_name = None
+index_category = None
 index_file = None
+files = None
 user_name = None
 dir_names = None
 assets_names = []
 asset_id = None
 validAsset = False
+user_type = os.path.split(os.getcwd())[1]  #Nombre de la carpeta donde se corre el programa
 clear = lambda: os.system('cls')
 
 
@@ -95,15 +97,39 @@ def selectFile(path):
 	except:
 		clear()
 		return 0
+def categoryValid():
+	global index_category, files
+	try:
+		index_category = int(raw_input("Selecciona una categoria (solo numeros):"))
+		if index_category>len(files):
+			return False
+		return True
+	except:
+		return False
 
+#aqui inicia el codigo
 if user_type in sg_types:
 	files = os.listdir(os.getcwd())
 	print "Tipo %s\n" %user_type
-	for file in files:
+	if len(files)>1:
+		print "Eliga una categoria:"
+		for index, file in enumerate(files):
+			print "%d - %s" %(index,file)
+		while not categoryValid():
+			print ''
+		file = files[index_category]
 		if file in sg_category:
 			user_category  = file
 			validCategory = True
-			break
+			clear()
+		else:
+			print "No se encontro la categoria"
+	else:
+		for file in files:
+			if file in sg_category:
+				user_category  = file
+				validCategory = True
+				break
 	if validCategory:
 		print "Categoria %s\n" %user_category
 		#dir_names = os.listdir(os.getcwd()+'/'+user_category)
@@ -117,7 +143,7 @@ if user_type in sg_types:
 				['sg_asset_type', 'is', user_type],
 				['sg_category', 'is', user_category]
 			]
-			fields = ['id', 'code']
+			fields = ['id', 'code'] 
 			assets= sg.find("Asset",filters,fields)
 			for asset in assets:
 				assets_names.append(asset['code'])
